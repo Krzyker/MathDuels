@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Duels</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="auth-section" id="authSection">
+        <div class="auth-tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+            <button class="tab-btn" onclick="switchTab('signup')">Create Account</button>
+        </div>
+        <form id="loginForm" class="auth-form">
+            <div class="form-group">
+                <input type="email" id="loginEmail" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Password" required>
+            </div>
+            <button type="submit" class="purple-button auth-btn">Sign In</button>
+        </form>
+        <div class="divider" id="loginDivider">
+            <span>or</span>
+        </div>
+        <div class="google-signin-container" id="googleSignInLogin">
+            <div id="g_id_onload"
+                 data-client_id="1032249866115-7nl2te0m3km6acf699dpv29ef1lb94l2.apps.googleusercontent.com"
+                 data-callback="handleGoogleSignIn"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left">
+            </div>
+        </div>
+        <form id="signupForm" class="auth-form hidden">
+            <div class="form-group">
+                <input type="text" id="signupName" placeholder="Full Name" required>
+            </div>
+            <div class="form-group">
+                <input type="email" id="signupEmail" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="signupPassword" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required>
+            </div>
+            <button type="submit" class="purple-button auth-btn">Create Account</button>
+        </form>
+        <div class="google-signin-container" id="googleSignInSignup" style="display:none;">
+            <div id="g_id_onload_signup"
+                 data-client_id="1032249866115-7nl2te0m3km6acf699dpv29ef1lb94l2.apps.googleusercontent.com"
+                 data-callback="handleGoogleSignIn"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="rectangular"
+                 data-logo_alignment="left">
+            </div>
+        </div>
+        <div id="authMessage" class="message"></div>
+    </div>
+    <div class="container" id="mainContainer">
+        <div class="content-section" id="contentSection">
+            <div class="user-info hidden">
+                <div class="user-details">
+                    <img id="userPicture" class="user-picture hidden" src="" alt="Profile">
+                    <span id="userName">User</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            <h1>Math Duels</h1>
+            <div class="button-container">
+                <button class="purple-button" onclick="playClicked()">
+                    Play
+                </button>
+            </div>
+            <div id="message" class="message"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
