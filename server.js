@@ -3,6 +3,7 @@ const pool = require('./db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config({ path: './config.env' });
 
 const app = express();
@@ -10,6 +11,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files (frontend)
+app.use(express.static(path.join(__dirname)));
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
@@ -285,8 +289,14 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Math Duels API is running!' });
 });
 
+// Serve the main HTML file for all non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Test the API: http://localhost:${PORT}/api/test`);
+  console.log(`Frontend available at: http://localhost:${PORT}`);
 }); 
