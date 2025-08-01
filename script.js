@@ -285,24 +285,280 @@ function handleClick(buttonNumber) {
     }, 150);
 }
 
+// Game Variables
+let gameState = {
+    isPlaying: false,
+    isPaused: false,
+    score: 0,
+    timeLeft: 120,
+    questionsAnswered: 0,
+    correctAnswers: 0,
+    currentQuestion: null,
+    timer: null
+};
+
 // New Play button click handler
 async function playClicked() {
+    const gameContainer = document.getElementById('gameContainer');
     const messageElement = document.getElementById('message');
-    messageElement.textContent = 'Let\'s play!';
-    messageElement.classList.add('show');
-    setTimeout(() => {
-        messageElement.classList.remove('show');
-    }, 3000);
-    const button = event.target;
-    button.style.transform = 'scale(0.95)';
-    setTimeout(() => {
-        button.style.transform = '';
-    }, 150);
+    const contentSection = document.getElementById('contentSection');
     
-    // Example: Submit a random score when play is clicked
-    if (currentUser) {
-        const randomScore = Math.floor(Math.random() * 100) + 1;
-        await submitScore(randomScore);
-        console.log(`Submitted score: ${randomScore}`);
+    // Hide the main content and show the game
+    contentSection.classList.add('hidden');
+    gameContainer.classList.remove('hidden');
+    
+    // Clear any previous messages
+    messageElement.classList.remove('show');
+    
+    // Reset game state and start immediately
+    resetGame();
+    startGame();
+}
+
+// Game Functions
+function resetGame() {
+    gameState = {
+        isPlaying: false,
+        isPaused: false,
+        score: 0,
+        timeLeft: 120,
+        questionsAnswered: 0,
+        correctAnswers: 0,
+        currentQuestion: null,
+        timer: null
+    };
+    
+    updateDisplay();
+    document.getElementById('answerInput').value = '';
+    
+    // Hide all buttons initially
+    document.getElementById('startBtn').classList.add('hidden');
+    document.getElementById('pauseBtn').classList.add('hidden');
+    document.getElementById('resumeBtn').classList.add('hidden');
+    document.getElementById('endBtn').classList.add('hidden');
+    document.getElementById('gameResults').classList.add('hidden');
+}
+
+function startGame() {
+    gameState.isPlaying = true;
+    gameState.isPaused = false;
+    
+    // Show pause and end buttons
+    document.getElementById('pauseBtn').classList.remove('hidden');
+    document.getElementById('endBtn').classList.remove('hidden');
+    
+    // Enable input and focus
+    document.getElementById('answerInput').disabled = false;
+    document.getElementById('answerInput').focus();
+    
+    // Start timer
+    startTimer();
+    
+    // Generate first question
+    generateQuestion();
+}
+
+function pauseGame() {
+    gameState.isPaused = true;
+    clearInterval(gameState.timer);
+    
+    document.getElementById('pauseBtn').classList.add('hidden');
+    document.getElementById('resumeBtn').classList.remove('hidden');
+    document.getElementById('answerInput').disabled = true;
+}
+
+function resumeGame() {
+    gameState.isPaused = false;
+    
+    document.getElementById('resumeBtn').classList.add('hidden');
+    document.getElementById('pauseBtn').classList.remove('hidden');
+    document.getElementById('answerInput').disabled = false;
+    document.getElementById('answerInput').focus();
+    
+    startTimer();
+}
+
+function endGame() {
+    gameState.isPlaying = false;
+    clearInterval(gameState.timer);
+    
+    // Hide game controls and question area, show results
+    document.getElementById('pauseBtn').classList.add('hidden');
+    document.getElementById('resumeBtn').classList.add('hidden');
+    document.getElementById('endBtn').classList.add('hidden');
+    document.querySelector('.game-question').classList.add('hidden');
+    document.querySelector('.game-controls').classList.add('hidden');
+    
+    showResults();
+}
+
+function startTimer() {
+    gameState.timer = setInterval(() => {
+        if (!gameState.isPaused) {
+            gameState.timeLeft--;
+            updateDisplay();
+            
+            if (gameState.timeLeft <= 0) {
+                endGame();
+            }
+        }
+    }, 1000);
+}
+
+function generateQuestion() {
+    let question, answer;
+    
+    // Classic Zetamac rules: random selection of all operations
+    const operations = ['+', '-', '×', '÷'];
+    const operation = operations[Math.floor(Math.random() * operations.length)];
+    
+    switch (operation) {
+        case '+':
+            // Addition: numbers 2-100 (matching Zetamac config)
+            const a1 = Math.floor(Math.random() * 99) + 2; // 2 to 100
+            const b1 = Math.floor(Math.random() * 99) + 2; // 2 to 100
+            question = `${a1} + ${b1}`;
+            answer = a1 + b1;
+            break;
+            
+        case '-':
+            // Subtraction: addition problems in reverse (matching Zetamac config)
+            // Generate an addition problem first, then reverse it
+            const add1 = Math.floor(Math.random() * 99) + 2; // 2 to 100
+            const add2 = Math.floor(Math.random() * 99) + 2; // 2 to 100
+            const sum = add1 + add2;
+            // Randomly choose which number to subtract
+            if (Math.random() < 0.5) {
+                question = `${sum} - ${add1}`;
+                answer = add2;
+            } else {
+                question = `${sum} - ${add2}`;
+                answer = add1;
+            }
+            break;
+            
+        case '×':
+            // Multiplication: first number 2-12, second number 2-100 (matching Zetamac config)
+            const a3 = Math.floor(Math.random() * 11) + 2; // 2 to 12
+            const b3 = Math.floor(Math.random() * 99) + 2; // 2 to 100
+            question = `${a3} × ${b3}`;
+            answer = a3 * b3;
+            break;
+            
+        case '÷':
+            // Division: multiplication problems in reverse (matching Zetamac config)
+            // Generate a multiplication problem first, then reverse it
+            const mult1 = Math.floor(Math.random() * 11) + 2; // 2 to 12
+            const mult2 = Math.floor(Math.random() * 99) + 2; // 2 to 100
+            const product = mult1 * mult2;
+            // Randomly choose which number to divide by
+            if (Math.random() < 0.5) {
+                question = `${product} ÷ ${mult1}`;
+                answer = mult2;
+            } else {
+                question = `${product} ÷ ${mult2}`;
+                answer = mult1;
+            }
+            break;
     }
-} 
+    
+    gameState.currentQuestion = { question, answer };
+    document.getElementById('question').textContent = question;
+    document.getElementById('answerInput').value = '';
+    document.getElementById('answerInput').focus();
+}
+
+function checkAnswer() {
+    const userAnswer = parseInt(document.getElementById('answerInput').value);
+    const correctAnswer = gameState.currentQuestion.answer;
+    
+    if (userAnswer === correctAnswer) {
+        // Correct answer - Zetamac style: 1 point per correct answer
+        gameState.score += 1;
+        gameState.correctAnswers++;
+        document.getElementById('question').classList.add('correct');
+        setTimeout(() => {
+            document.getElementById('question').classList.remove('correct');
+        }, 500);
+    } else {
+        // Wrong answer - no points, no penalty
+        document.getElementById('answerInput').classList.add('wrong');
+        setTimeout(() => {
+            document.getElementById('answerInput').classList.remove('wrong');
+        }, 300);
+    }
+    
+    gameState.questionsAnswered++;
+    
+    updateDisplay();
+    generateQuestion();
+}
+
+function updateDisplay() {
+    document.getElementById('score').textContent = `Score: ${gameState.score}`;
+    document.getElementById('time').textContent = `Time: ${gameState.timeLeft}s`;
+}
+
+function showResults() {
+    const accuracy = gameState.questionsAnswered > 0 
+        ? Math.round((gameState.correctAnswers / gameState.questionsAnswered) * 100) 
+        : 0;
+    
+    document.getElementById('finalScore').textContent = gameState.score;
+    document.getElementById('questionsAnswered').textContent = gameState.questionsAnswered;
+    document.getElementById('accuracy').textContent = `${accuracy}%`;
+    
+    document.getElementById('gameResults').classList.remove('hidden');
+    
+    // Submit score to backend if user is logged in
+    if (currentUser) {
+        submitScore(gameState.score);
+    }
+}
+
+function playAgain() {
+    resetGame();
+    document.getElementById('gameResults').classList.add('hidden');
+    document.querySelector('.game-question').classList.remove('hidden');
+    document.querySelector('.game-controls').classList.remove('hidden');
+    document.getElementById('startBtn').classList.remove('hidden');
+}
+
+function backToMenu() {
+    document.getElementById('gameContainer').classList.add('hidden');
+    document.getElementById('contentSection').classList.remove('hidden');
+    resetGame();
+}
+
+// Event listeners for the game
+document.addEventListener('DOMContentLoaded', function() {
+    const answerInput = document.getElementById('answerInput');
+    
+    // Handle input changes and auto-check answers
+    answerInput.addEventListener('input', function() {
+        // Remove non-numeric characters except minus sign
+        this.value = this.value.replace(/[^0-9-]/g, '');
+        
+        // Auto-check answer when user types
+        if (gameState.isPlaying && !gameState.isPaused && this.value.trim() !== '') {
+            const userAnswer = parseInt(this.value);
+            const correctAnswer = gameState.currentQuestion?.answer;
+            
+            if (userAnswer === correctAnswer) {
+                // Small delay to let user see their answer
+                setTimeout(() => {
+                    checkAnswer();
+                }, 100);
+            }
+        }
+    });
+    
+    // Still allow Enter key as backup
+    answerInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && gameState.isPlaying && !gameState.isPaused) {
+            if (this.value.trim() !== '') {
+                checkAnswer();
+            }
+        }
+    });
+}); 

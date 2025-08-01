@@ -89,6 +89,40 @@
             </div>
             <div id="message" class="message"></div>
         </div>
+        
+        <!-- Game Container -->
+        <div id="gameContainer" class="game-container hidden">
+            <div class="game-header">
+                <h2>Math Duel</h2>
+                <div class="game-stats">
+                    <span id="score">Score: 0</span>
+                                            <span id="time">Time: 120s</span>
+                </div>
+            </div>
+            
+            <div class="game-question">
+                <div id="question" class="question-text">Ready to start?</div>
+                <input type="number" id="answerInput" class="answer-input" disabled>
+            </div>
+            
+            <div class="game-controls">
+                <button id="startBtn" class="purple-button" onclick="startGame()">Start Game</button>
+                <button id="pauseBtn" class="purple-button hidden" onclick="pauseGame()">Pause</button>
+                <button id="resumeBtn" class="purple-button hidden" onclick="resumeGame()">Resume</button>
+                <button id="endBtn" class="purple-button hidden" onclick="endGame()">End Game</button>
+            </div>
+            
+            <div class="game-results hidden" id="gameResults">
+                <h3>Game Over!</h3>
+                <div class="final-score">
+                    <p>Final Score: <span id="finalScore">0</span></p>
+                    <p>Questions Answered: <span id="questionsAnswered">0</span></p>
+                    <p>Accuracy: <span id="accuracy">0%</span></p>
+                </div>
+                <button class="purple-button" onclick="playAgain()">Play Again</button>
+                <button class="purple-button" onclick="backToMenu()">Back to Menu</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
