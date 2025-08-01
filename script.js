@@ -420,14 +420,11 @@ function generateQuestion() {
             question = `${a1} + ${b1}`;
             answer = a1 + b1;
             break;
-            
         case '-':
             // Subtraction: addition problems in reverse (matching Zetamac config)
-            // Generate an addition problem first, then reverse it
             const add1 = Math.floor(Math.random() * 99) + 2; // 2 to 100
             const add2 = Math.floor(Math.random() * 99) + 2; // 2 to 100
             const sum = add1 + add2;
-            // Randomly choose which number to subtract
             if (Math.random() < 0.5) {
                 question = `${sum} - ${add1}`;
                 answer = add2;
@@ -436,7 +433,6 @@ function generateQuestion() {
                 answer = add1;
             }
             break;
-            
         case '×':
             // Multiplication: first number 2-12, second number 2-100 (matching Zetamac config)
             const a3 = Math.floor(Math.random() * 11) + 2; // 2 to 12
@@ -444,21 +440,13 @@ function generateQuestion() {
             question = `${a3} × ${b3}`;
             answer = a3 * b3;
             break;
-            
         case '÷':
-            // Division: multiplication problems in reverse (matching Zetamac config)
-            // Generate a multiplication problem first, then reverse it
-            const mult1 = Math.floor(Math.random() * 11) + 2; // 2 to 12
-            const mult2 = Math.floor(Math.random() * 99) + 2; // 2 to 100
-            const product = mult1 * mult2;
-            // Randomly choose which number to divide by
-            if (Math.random() < 0.5) {
-                question = `${product} ÷ ${mult1}`;
-                answer = mult2;
-            } else {
-                question = `${product} ÷ ${mult2}`;
-                answer = mult1;
-            }
+            // Division: (2 to 12) × (2 to 100) in reverse, always whole number answer
+            const divisor = Math.floor(Math.random() * 99) + 2; // 2 to 100
+            const quotient = Math.floor(Math.random() * 11) + 2; // 2 to 12
+            const dividend = divisor * quotient;
+            question = `${dividend} ÷ ${divisor}`;
+            answer = quotient;
             break;
     }
     
@@ -528,6 +516,94 @@ function backToMenu() {
     document.getElementById('gameContainer').classList.add('hidden');
     document.getElementById('contentSection').classList.remove('hidden');
     resetGame();
+}
+
+// Leaderboard functionality
+let leaderboardData = [];
+
+async function showLeaderboard() {
+    const contentSection = document.getElementById('contentSection');
+    const leaderboardContainer = document.getElementById('leaderboardContainer');
+    
+    // Hide main content and show leaderboard
+    contentSection.classList.add('hidden');
+    leaderboardContainer.classList.remove('hidden');
+    
+    // Load and display leaderboard data
+    await loadLeaderboard();
+}
+
+async function loadLeaderboard() {
+    try {
+        const data = await getLeaderboard();
+        leaderboardData = data;
+        displayLeaderboard();
+        updateLeaderboardStats();
+    } catch (error) {
+        console.error('Failed to load leaderboard:', error);
+        // Show empty leaderboard with error message
+        document.getElementById('leaderboardList').innerHTML = 
+            '<div class="leaderboard-entry"><p>Failed to load leaderboard data</p></div>';
+    }
+}
+
+function displayLeaderboard() {
+    const leaderboardList = document.getElementById('leaderboardList');
+    const sortBy = document.getElementById('sortBy').value;
+    
+    // Sort data based on selected criteria
+    let sortedData = [...leaderboardData];
+    switch (sortBy) {
+        case 'high_score':
+            sortedData.sort((a, b) => b.high_score - a.high_score);
+            break;
+        case 'games_played':
+            sortedData.sort((a, b) => b.games_played - a.games_played);
+            break;
+        case 'avg_score':
+            sortedData.sort((a, b) => (b.high_score / b.games_played) - (a.high_score / a.games_played));
+            break;
+    }
+    
+    // Generate HTML for leaderboard entries
+    const leaderboardHTML = sortedData.map((player, index) => {
+        const rank = index + 1;
+        const rankClass = rank <= 3 ? `rank-${rank}` : '';
+        const avgScore = player.games_played > 0 ? Math.round(player.high_score / player.games_played) : 0;
+        
+        return `
+            <div class="leaderboard-entry ${rankClass}">
+                <div class="player-info">
+                    <div class="player-rank">#${rank}</div>
+                    ${player.picture ? `<img src="${player.picture}" alt="${player.name}" class="player-picture">` : ''}
+                    <div class="player-name">${player.name}</div>
+                </div>
+                <div class="player-stats">
+                    <div class="player-high-score">${player.high_score} pts</div>
+                    <div class="player-games">${player.games_played} games (avg: ${avgScore})</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    leaderboardList.innerHTML = leaderboardHTML || '<div class="leaderboard-entry"><p>No players found</p></div>';
+}
+
+function updateLeaderboardStats() {
+    const totalPlayers = leaderboardData.length;
+    const totalGames = leaderboardData.reduce((sum, player) => sum + player.games_played, 0);
+    
+    document.getElementById('totalPlayers').textContent = `Total Players: ${totalPlayers}`;
+    document.getElementById('totalGames').textContent = `Total Games: ${totalGames}`;
+}
+
+function sortLeaderboard() {
+    displayLeaderboard();
+}
+
+function backToMenuFromLeaderboard() {
+    document.getElementById('leaderboardContainer').classList.add('hidden');
+    document.getElementById('contentSection').classList.remove('hidden');
 }
 
 // Event listeners for the game

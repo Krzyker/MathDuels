@@ -86,6 +86,9 @@
                 <button class="purple-button" onclick="playClicked()">
                     Play
                 </button>
+                <button class="purple-button" onclick="showLeaderboard()">
+                    Leaderboard
+                </button>
             </div>
             <div id="message" class="message"></div>
         </div>
@@ -121,6 +124,35 @@
                 </div>
                 <button class="purple-button" onclick="playAgain()">Play Again</button>
                 <button class="purple-button" onclick="backToMenu()">Back to Menu</button>
+            </div>
+        </div>
+        
+        <!-- Leaderboard Container -->
+        <div id="leaderboardContainer" class="leaderboard-container hidden">
+            <div class="leaderboard-header">
+                <h2>Leaderboard</h2>
+                <div class="leaderboard-stats">
+                    <span id="totalPlayers">Total Players: 0</span>
+                    <span id="totalGames">Total Games: 0</span>
+                </div>
+            </div>
+            
+            <div class="leaderboard-content">
+                <div class="leaderboard-filters">
+                    <select id="sortBy" class="leaderboard-select" onchange="sortLeaderboard()">
+                        <option value="high_score">Sort by: Highest Score</option>
+                        <option value="games_played">Sort by: Games Played</option>
+                        <option value="avg_score">Sort by: Average Score</option>
+                    </select>
+                </div>
+                
+                <div class="leaderboard-list" id="leaderboardList">
+                    <!-- Leaderboard entries will be populated here -->
+                </div>
+            </div>
+            
+            <div class="leaderboard-controls">
+                <button class="purple-button" onclick="backToMenuFromLeaderboard()">Back to Menu</button>
             </div>
         </div>
     </div>
